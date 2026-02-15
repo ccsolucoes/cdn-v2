@@ -90,6 +90,27 @@
 
   CCUI.onReady(() => {
     try { CCUI.initNav(); } catch (e) {}
+
+    //Lenis//
+    try {
+    if (!global.Lenis) return;
+
+    const disable =
+      document.documentElement.hasAttribute("data-lenis-off") ||
+      document.body.hasAttribute("data-lenis-off") ||
+      CCUI.prefersReducedMotion();
+
+    if (disable) return;
+
+    const lenis = new global.Lenis({
+      autoRaf: true,
+      smoothWheel: true,
+      smoothTouch: false
+    });
+
+    CCUI.lenis = lenis;
+
+  } catch (e) {}
   });
 
 })(window);
