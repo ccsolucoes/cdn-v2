@@ -1,0 +1,58 @@
+/* cc-reveal.css v1.0.0
+   Scroll reveal (CSS defines motion; JS toggles visibility class)
+*/
+
+:root{
+  --reveal-distance: 14px;
+  --reveal-duration: 520ms;
+  --reveal-delay: 0ms;
+  --reveal-ease: cubic-bezier(.2,.8,.2,1);
+}
+
+/* Base reveal */
+.reveal{
+  opacity: 0;
+  transform: none;
+  transition:
+    opacity var(--reveal-duration) var(--reveal-ease),
+    transform var(--reveal-duration) var(--reveal-ease);
+  transition-delay: var(--reveal-delay);
+  will-change: opacity, transform;
+}
+
+/* Visible */
+.reveal.is-visible{
+  opacity: 1;
+  transform: none;
+}
+
+/* Variants */
+.reveal[data-reveal="fade"]{ transform: none; }
+.reveal[data-reveal="up"]{ transform: translateY(var(--reveal-distance)); }
+.reveal[data-reveal="down"]{ transform: translateY(calc(var(--reveal-distance) * -1)); }
+.reveal[data-reveal="left"]{ transform: translateX(calc(var(--reveal-distance) * -1)); }
+.reveal[data-reveal="right"]{ transform: translateX(var(--reveal-distance)); }
+
+.reveal.is-visible[data-reveal="fade"],
+.reveal.is-visible[data-reveal="up"],
+.reveal.is-visible[data-reveal="down"],
+.reveal.is-visible[data-reveal="left"],
+.reveal.is-visible[data-reveal="right"]{
+  transform: none;
+}
+
+/* Optional delays (stagger) */
+.reveal.delay-1{ --reveal-delay: 60ms; }
+.reveal.delay-2{ --reveal-delay: 120ms; }
+.reveal.delay-3{ --reveal-delay: 180ms; }
+.reveal.delay-4{ --reveal-delay: 240ms; }
+.reveal.delay-5{ --reveal-delay: 300ms; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .reveal{
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

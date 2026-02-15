@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contato - Impulso Digital</title>
+  <link rel="stylesheet" href="cc-layout_v1_2_1.css">
+  <link rel="stylesheet" href="ccui-motion_v1_1_0.css">
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- reCAPTCHA v3 (Optional) -->
+  <!-- <script src="https://www.google.com/recaptcha/api.js?render=YOUR_SITE_KEY"></script> -->
+</head>
+<body>
+
+  <section class="cc-section contact-section">
+    <div class="cc-container">
+      <div class="section-header cc-center cc-mb-3">
+        <span class="section-tag">Entre em Contato</span>
+        <h2 class="section-title">Solicite um Diagnóstico Gratuito</h2>
+        <p class="section-description">
+          Preencha o formulário e nossa equipe entrará em contato em até 24 horas
+        </p>
+      </div>
+      
+      <div class="cc-center" style="max-width: 600px;">
+        <div class="contact-form-wrapper">
+          <!-- Add data-ccmail for auto-handling OR handle manually -->
+          <form id="contactForm" class="contact-form">
+            
+            <!-- Honeypot field (REQUIRED - hidden spam trap) -->
+            <input type="text" name="honeypot" style="display:none" tabindex="-1" autocomplete="off">
+            
+            <div class="form-group">
+              <label class="cc-label" for="name">Nome completo *</label>
+              <input type="text" id="name" name="name" class="cc-input" required>
+            </div>
+            
+            <div class="form-group">
+              <label class="cc-label" for="email">E-mail *</label>
+              <input type="email" id="email" name="email" class="cc-input" required>
+            </div>
+            
+            <div class="form-group">
+              <label class="cc-label" for="phone">Telefone *</label>
+              <input type="tel" id="phone" name="phone" class="cc-input" required>
+            </div>
+            
+            <div class="form-group">
+              <label class="cc-label" for="company">Nome da Empresa *</label>
+              <input type="text" id="company" name="company" class="cc-input" required>
+            </div>
+            
+            <div class="form-group">
+              <label class="cc-label" for="service">Serviço de Interesse</label>
+              <select id="service" name="service" class="cc-select">
+                <option value="">Selecione um serviço</option>
+                <option value="google-ads">Google Ads & Meta Ads</option>
+                <option value="social-media">Gestão de Redes Sociais</option>
+                <option value="seo">SEO & Conteúdo</option>
+                <option value="analytics">Analytics & CRO</option>
+                <option value="email">E-mail Marketing</option>
+                <option value="design">Design & Identidade</option>
+                <option value="all">Consultoria Completa</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label class="cc-label" for="message">Mensagem</label>
+              <textarea id="message" name="message" class="cc-textarea" placeholder="Conte-nos sobre seu negócio e objetivos..."></textarea>
+            </div>
+            
+            <!-- Success/Error Messages -->
+            <div class="success-message" style="display:none; padding:12px; background:#d1fae5; color:#065f46; border-radius:8px; margin-bottom:16px;">
+              ✓ Mensagem enviada com sucesso! Entraremos em contato em breve.
+            </div>
+            
+            <div class="error-message" style="display:none; padding:12px; background:#fee2e2; color:#991b1b; border-radius:8px; margin-bottom:16px;">
+              ✗ Erro ao enviar mensagem. Por favor, tente novamente.
+            </div>
+            
+            <button type="submit" class="cc-btn cc-btn--primary btn-block cc-press" id="submitBtn">
+              Enviar Solicitação
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Option 1: Use CCMail Client (Easiest) -->
+  <script src="https://cdn.yourdomain.com/ccmail/ccmail-client.js"></script>
+  <script>
+    // Configure the API endpoint
+    CCMailClient.config.apiUrl = 'https://cdn.yourdomain.com/ccmail/mail-api.php';
+    
+    // Optional: Add reCAPTCHA site key
+    // CCMailClient.config.recaptchaSiteKey = 'YOUR_SITE_KEY';
+    
+    // The form will automatically submit via AJAX because of data-ccmail attribute
+    // Or manually attach:
+    const form = document.getElementById('contactForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const successMsg = document.querySelector('.success-message');
+      const errorMsg = document.querySelector('.error-message');
+      
+      try {
+        await CCMailClient.submitForm(form, {
+          loadingCallback: (loading) => {
+            submitBtn.disabled = loading;
+            submitBtn.textContent = loading ? 'Enviando...' : 'Enviar Solicitação';
+          },
+          successCallback: (result) => {
+            form.reset();
+            successMsg.style.display = 'block';
+            errorMsg.style.display = 'none';
+            
+            // Optional: Redirect after success
+            // setTimeout(() => window.location.href = '/obrigado.html', 2000);
+          },
+          errorCallback: (error) => {
+            errorMsg.style.display = 'block';
+            errorMsg.textContent = error.message;
+            successMsg.style.display = 'none';
+          }
+        });
+      } catch (error) {
+        console.error('Form submission error:', error);
+      }
+    });
+  </script>
+
+  <!-- Option 2: Custom Implementation (if not using client library) -->
+  <!--
+  <script>
+    document.getElementById('contactForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const form = e.target;
+      const submitBtn = document.getElementById('submitBtn');
+      const successMsg = document.querySelector('.success-message');
+      const errorMsg = document.querySelector('.error-message');
+      
+      // Disable button
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+      
+      // Get form data
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData);
+      
+      try {
+        const response = await fetch('https://cdn.yourdomain.com/ccmail/mail-api.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          form.reset();
+          successMsg.style.display = 'block';
+          errorMsg.style.display = 'none';
+        } else {
+          errorMsg.style.display = 'block';
+          errorMsg.textContent = result.message;
+          successMsg.style.display = 'none';
+        }
+      } catch (error) {
+        errorMsg.style.display = 'block';
+        errorMsg.textContent = 'Erro ao enviar mensagem. Tente novamente.';
+        successMsg.style.display = 'none';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar Solicitação';
+      }
+    });
+  </script>
+  -->
+
+</body>
+</html>

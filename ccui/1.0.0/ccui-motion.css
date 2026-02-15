@@ -1,0 +1,22 @@
+/* ccui-motion.css v1.0.0
+   Minimal CSS needed for CCUI slider buttons + images.
+   You can override styles per client.
+*/
+
+.cc-slider{ position:relative; overflow:hidden; }
+.cc-track{ will-change:transform; }
+.cc-slide img{ width:100%; height:auto; display:block; }
+
+.cc-prev,.cc-next{
+  position:absolute; top:50%; transform:translateY(-50%);
+  border:1px solid rgba(0,0,0,.12);
+  background: rgba(255,255,255,.8);
+  width:40px; height:40px; border-radius:999px;
+  cursor:pointer;
+}
+.cc-prev{ left:10px; }
+.cc-next{ right:10px; }
+
+@media (prefers-reduced-motion: reduce){
+  .cc-track{ transition:none !important; }
+}

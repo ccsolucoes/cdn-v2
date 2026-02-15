@@ -1,0 +1,120 @@
+/* ccui-motion.css v1.1.0
+   Motion tokens + micro-interactions + state transitions (drawer/overlay).
+   Keeps CCUI lightweight and override-friendly per client.
+*/
+
+:root{
+  --cc-ease: cubic-bezier(.2,.8,.2,1);
+  --cc-dur-1: 140ms;
+  --cc-dur-2: 220ms;
+  --cc-dur-3: 360ms;
+  --cc-dist-1: 10px;
+  --cc-dist-2: 18px;
+  --cc-shadow-lift: 0 10px 28px rgba(0,0,0,.14);
+}
+
+/* Respect user preference */
+@media (prefers-reduced-motion: reduce){
+  *{ animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* -----------------------------
+   Micro-interactions
+------------------------------ */
+.cc-hover-lift{
+  transition: transform var(--cc-dur-2) var(--cc-ease), box-shadow var(--cc-dur-2) var(--cc-ease);
+  will-change: transform;
+}
+.cc-hover-lift:hover{
+  transform: translateY(-2px);
+  box-shadow: var(--cc-shadow-lift);
+}
+
+.cc-press{
+  transition: transform var(--cc-dur-1) var(--cc-ease);
+  will-change: transform;
+}
+.cc-press:active{
+  transform: translateY(1px) scale(.99);
+}
+
+.cc-focus-ring:focus-visible{
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+/* -----------------------------
+   Entrance helpers (optional)
+   Use sparingly; cc-reveal is the main entry system.
+------------------------------ */
+@keyframes ccFadeIn{ from{ opacity:0 } to{ opacity:1 } }
+@keyframes ccSlideUp{ from{ opacity:0; transform: translateY(var(--cc-dist-1)); } to{ opacity:1; transform:none; } }
+@keyframes ccZoomIn{ from{ opacity:0; transform: scale(.985); } to{ opacity:1; transform:none; } }
+
+.cc-fade-in{ animation: ccFadeIn var(--cc-dur-2) var(--cc-ease) both; }
+.cc-slide-up{ animation: ccSlideUp var(--cc-dur-2) var(--cc-ease) both; }
+.cc-zoom-in{ animation: ccZoomIn var(--cc-dur-2) var(--cc-ease) both; }
+
+.cc-stagger > *{ animation: ccSlideUp var(--cc-dur-2) var(--cc-ease) both; }
+.cc-stagger > *:nth-child(1){ animation-delay: 0ms; }
+.cc-stagger > *:nth-child(2){ animation-delay: 70ms; }
+.cc-stagger > *:nth-child(3){ animation-delay: 140ms; }
+.cc-stagger > *:nth-child(4){ animation-delay: 210ms; }
+
+/* -----------------------------
+   Slider (kept from v1.0.0)
+------------------------------ */
+.cc-slider{ position:relative; overflow:hidden; }
+.cc-track{ will-change:transform; }
+.cc-slide img{ width:100%; height:auto; display:block; }
+
+.cc-prev,.cc-next{
+  position:absolute; top:50%; transform:translateY(-50%);
+  border:1px solid rgba(0,0,0,.12);
+  background: rgba(255,255,255,.84);
+  width:40px; height:40px; border-radius:999px;
+  cursor:pointer;
+
+  transition: transform var(--cc-dur-1) var(--cc-ease), background var(--cc-dur-2) var(--cc-ease);
+}
+.cc-prev:hover,.cc-next:hover{ background: rgba(255,255,255,.92); }
+.cc-prev:active,.cc-next:active{ transform: translateY(-50%) scale(.98); }
+
+.cc-prev{ left:10px; }
+.cc-next{ right:10px; }
+
+/* -----------------------------
+   Nav drawer + overlay transitions
+   Works with cc-layout nav structure:
+   .cc-nav (wrapper) toggles .is-open
+------------------------------ */
+.cc-nav-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.40);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--cc-dur-2) var(--cc-ease);
+  z-index: 998;
+}
+
+.cc-nav-drawer{
+  position: fixed;
+  left: 0; right: 0; top: 0;
+  transform: translateY(calc(-1 * var(--cc-dist-2)));
+  opacity: 0;
+  pointer-events: none;
+  transition: transform var(--cc-dur-2) var(--cc-ease), opacity var(--cc-dur-2) var(--cc-ease);
+  z-index: 999;
+}
+
+.cc-nav.is-open .cc-nav-overlay{
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.cc-nav.is-open .cc-nav-drawer{
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}

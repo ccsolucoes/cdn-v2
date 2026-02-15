@@ -1,0 +1,290 @@
+/* =========================================================
+   CC LAYOUT SYSTEM
+   https://cdn.ccssolucoes.com/stable/cc-layout.css
+
+   Version: 1.1.0
+   Status: Stable
+   Author: LuanRod
+
+   Description:
+   Core layout and structural CSS system for fast, consistent
+   website builds. Neutral, reusable, and CDN-hosted.
+
+   ========================================================= */
+
+/* ================================
+   CHANGELOG
+   ================================
+
+   1.1.0
+   - Added flex helpers
+   - Added base button system
+   - Added default form inputs
+   - Stabilized nav structural base
+   - Expanded layout utility coverage
+
+   1.0.1
+   - Atmospheric overlay module added (later moved optional)
+
+   1.0.0
+   - Initial stable release
+   - Container, grid, spacing, column systems
+   - Responsive collapse logic
+   - Base utilities
+*/
+
+
+:root{
+  --cc-gap: 16px;
+  --cc-container: 1120px;
+  --cc-pad: 18px;
+  --cc-line: rgba(0,0,0,.10);
+}
+
+/* Container */
+.cc-container{
+  max-width: var(--cc-container);
+  margin-inline: auto;
+  padding-inline: var(--cc-pad);
+}
+/* Flex helpers */
+.cc-flex{ display:flex; }
+.cc-flex-center{ display:flex; align-items:center; justify-content:center; }
+.cc-flex-between{ display:flex; align-items:center; justify-content:space-between; }
+.cc-flex-start{ display:flex; align-items:center; justify-content:flex-start; }
+.cc-flex-end{ display:flex; align-items:center; justify-content:flex-end; }
+
+.cc-flex-col{ display:flex; flex-direction:column; }
+.cc-flex-wrap{ flex-wrap:wrap; }
+
+/* Sections (spacing only) */
+.cc-section{ padding-block: 64px; }
+.cc-section--tight{ padding-block: 44px; }
+.cc-section--top{ padding-top: 64px; padding-bottom: 0; }
+.cc-section--bottom{ padding-top: 0; padding-bottom: 64px; }
+.cc-section--top-tight{ padding-top: 44px; padding-bottom: 0; }
+.cc-section--bottom-tight{ padding-top: 0; padding-bottom: 44px; }
+
+/* Stack (vertical rhythm) */
+.cc-stack{ display: grid; gap: var(--cc-gap); }
+.cc-stack--tight{ gap: calc(var(--cc-gap) * .75); }
+.cc-stack--loose{ gap: calc(var(--cc-gap) * 1.35); }
+
+/* Flow (document rhythm) */
+.cc-flow > * + *{ margin-top: var(--cc-gap); }
+
+/* ================================
+   Grid system
+   ================================ */
+
+.cc-grid{
+  display: grid;
+  gap: var(--cc-gap);
+}
+
+/* Fixed column counts with good mobile fallbacks */
+.cc-grid.g-2{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cc-grid.g-3{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.cc-grid.g-4{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* 2x2 semantic helper */
+.cc-grid.g-2x2{
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--cc-gap) * 1.15);
+}
+
+/* Responsive collapse rules */
+@media (max-width: 980px){
+  .cc-grid.g-4{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cc-grid.g-3{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 700px){
+  .cc-grid.g-4,
+  .cc-grid.g-3,
+  .cc-grid.g-2,
+  .cc-grid.g-2x2{
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Auto-fit cards (good for unknown count) */
+.cc-grid.g-auto{
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+/* Optional local gap controls */
+.cc-grid.gap-sm{ gap: 12px; }
+.cc-grid.gap-lg{ gap: 22px; }
+
+/* ================================
+   Two-column section layouts
+   ================================ */
+
+.cc-cols{
+  display: grid;
+  gap: var(--cc-gap);
+  align-items: start;
+}
+
+/* 50/50 default */
+.cc-cols.cols-50{ grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+
+/* 60/40 and 40/60 */
+.cc-cols.cols-60-40{ grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+.cc-cols.cols-40-60{ grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); }
+
+/* 70/30 and 30/70 (useful for “content + sidebar”) */
+.cc-cols.cols-70-30{ grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr); }
+.cc-cols.cols-30-70{ grid-template-columns: minmax(0, 1fr) minmax(0, 2.1fr); }
+
+/* Optional local gap controls */
+.cc-cols.gap-sm{ gap: 12px; }
+.cc-cols.gap-lg{ gap: 22px; }
+
+/* Responsive collapse */
+@media (max-width: 980px){
+  .cc-cols{
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ================================
+   Utility helpers
+   ================================ */
+
+/* Center a single column section */
+.cc-center{
+  max-width: 760px;
+  margin-inline: auto;
+}
+/* Buttons base */
+.cc-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+
+  padding:12px 18px;
+  border-radius:10px;
+
+  font:inherit;
+  text-decoration:none;
+  cursor:pointer;
+  border:1px solid transparent;
+
+  transition:all .2s ease;
+}
+
+/* Forms */
+.cc-input,
+.cc-textarea,
+.cc-select{
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid var(--cc-line);
+  font:inherit;
+  background:transparent;
+}
+
+/* Navbar base */
+.cc-nav{
+  position:relative;
+  z-index:20;
+}
+
+.cc-nav-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+
+.cc-nav-links{
+  display:flex;
+  gap:18px;
+  align-items:center;
+}
+
+.cc-nav-toggle{
+  display:none;
+}
+
+@media (max-width: 860px){
+  .cc-nav-links{ display:none; }
+  .cc-nav-toggle{ display:block; }
+}
+
+
+.cc-textarea{ min-height:120px; resize:vertical; }
+
+.cc-label{
+  display:block;
+  margin-bottom:6px;
+  font-size:.9rem;
+}
+
+
+/* Control gap per section without new classes */
+.cc-gap-sm{ --cc-gap: 12px; }
+.cc-gap-lg{ --cc-gap: 22px; }
+
+/* Simple horizontal rule */
+.cc-hr{
+  height: 1px;
+  background: var(--cc-line);
+  border: 0;
+  margin-block: 18px;
+}
+/* ================================
+   Atmospheric overlay helpers (opt-in)
+   ================================ */
+
+/* Base atmospheric container */
+.cc-atmo{
+  position: relative;
+  overflow: hidden;
+}
+
+/* Light / gradient overlay */
+.cc-atmo::after{
+  content:"";
+  position:absolute;
+  inset: var(--cc-atmo-inset, -20%);
+  pointer-events:none;
+  z-index: 0;
+
+  background:
+    radial-gradient(
+      circle at var(--cc-atmo-x, 20%) var(--cc-atmo-y, 20%),
+      var(--cc-atmo-c1, rgba(0,0,0,0.08)),
+      transparent var(--cc-atmo-spot, 60%)
+    ),
+    linear-gradient(
+      var(--cc-atmo-angle, 180deg),
+      var(--cc-atmo-c2, rgba(0,0,0,0.06)),
+      transparent var(--cc-atmo-fade, 70%)
+    );
+
+  opacity: var(--cc-atmo-opacity, .9);
+  filter: blur(var(--cc-atmo-blur, 18px));
+  transform: translateZ(0);
+}
+
+/* Optional slow drift (explicit opt-in) */
+.cc-atmo.atmo-drift::after{
+  animation: ccAtmoDrift var(--cc-atmo-speed, 14s) ease-in-out infinite;
+}
+
+@keyframes ccAtmoDrift{
+  0%   { transform: translate(-2%, -1%) scale(1.02); }
+  50%  { transform: translate( 2%,  1%) scale(1.06); }
+  100% { transform: translate(-2%, -1%) scale(1.02); }
+}
+
+/* Motion safety */
+@media (prefers-reduced-motion: reduce){
+  .cc-atmo.atmo-drift::after{
+    animation: none;
+  }
+}
