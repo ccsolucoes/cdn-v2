@@ -1,5 +1,5 @@
 (function () {
-
+  console.log("entrou na func")
   const cfg = window.CCAnims || {};
   const thisSrc = document.currentScript.src;
   const root = thisSrc.split("/cc-anims/")[0];
