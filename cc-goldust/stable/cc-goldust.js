@@ -15,7 +15,7 @@
 
   const INTENSITY_PRESETS = {
     low: 1.30,
-    medium: 3.55,
+    medium: 13.55,
     high: 12.85,
   };
 
