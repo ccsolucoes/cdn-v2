@@ -40,6 +40,7 @@
         
     let base = `${root}/cc-${module}/${version}/`
     if (internal){
+      console.log("entrou interno")
       base = `cc-${module}/`;
     } 
     console.log(base)
