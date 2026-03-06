@@ -1,170 +1,175 @@
-/* cc-reveal v2.0.0 */
+/* cc-reveal.js v1.0.1
+   Adds .is-visible to .reveal elements when they enter viewport.
+   Optional per-element config via data-* attributes:
+   - data-duration="900"   (ms)
+   - data-delay="120"      (ms)
+   - data-distance="24"    (px)
+   - data-ease="cubic-bezier(.2,.8,.2,1)" (string)
+*/
 (function () {
   "use strict";
 
-  const DEFAULTS = {
-    type: "fade-up",
-    once: true,
-    threshold: 0.12,
-    rootMargin: "0px 0px -10% 0px",
-    duration: 650,
-    delay: 0,
-    ease: "cubic-bezier(.2,.8,.2,1)",
-    distance: 18,
-    debug: false
-  };
+  const reduce =
+    window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const prefersReducedMotion = () =>
-    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  const toBool = (v, fallback) => {
-    if (v === null || v === undefined || v === "") return fallback;
-    if (v === "true") return true;
-    if (v === "false") return false;
-    return fallback;
-  };
-
-  const toNum = (v, fallback) => {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : fallback;
-  };
-
-  function applyVars(el, opts) {
-    el.style.setProperty("--cc-reveal-duration", `${opts.duration}ms`);
-    el.style.setProperty("--cc-reveal-delay", `${opts.delay}ms`);
-    el.style.setProperty("--cc-reveal-ease", opts.ease);
-    el.style.setProperty("--cc-reveal-distance", `${opts.distance}px`);
+  const els = document.querySelectorAll(".reveal");
+  if (!els.length) {
+    document.documentElement.classList.add("ccreveal-ready");
+    return;
   }
 
-  function normalizeType(el) {
-    // v1 compatibility: if using .cc-reveal but no data type, keep default
-    if (!el.getAttribute("data-cc-reveal")) {
-      el.setAttribute("data-cc-reveal", DEFAULTS.type);
+   // ---------- helpers: number parsing/formatting ----------
+  function parseNumberParts(rawText) {
+    const text = (rawText || "").trim();
+
+    // Find first "number-like" chunk (supports 1,234.56 or 1.234,56)
+    const match = text.match(/[-+]?\d[\d.,]*/);
+    if (!match) return null;
+
+    const numStr = match[0];
+    const startIdx = match.index;
+    const endIdx = startIdx + numStr.length;
+
+    const prefix = text.slice(0, startIdx);
+    const suffix = text.slice(endIdx);
+
+    // Determine decimal separator (last occurrence of '.' or ',')
+    const lastDot = numStr.lastIndexOf(".");
+    const lastComma = numStr.lastIndexOf(",");
+
+    let decimalSep = null;
+    if (lastDot > -1 || lastComma > -1) {
+      decimalSep = lastDot > lastComma ? "." : ",";
     }
+
+    let decimals = 0;
+    if (decimalSep) {
+      const decPart = numStr.split(decimalSep)[1] || "";
+      decimals = decPart.length;
+    }
+
+    // Normalize to JS float:
+    // - Remove thousands separators
+    // - Convert decimal sep to '.'
+    let normalized = numStr;
+
+    if (decimalSep === ",") {
+      // 12.345,67 -> remove '.' thousands, replace ',' decimal
+      normalized = normalized.replace(/\./g, "").replace(",", ".");
+    } else if (decimalSep === ".") {
+      // 12,345.67 -> remove ',' thousands
+      normalized = normalized.replace(/,/g, "");
+    } else {
+      // No obvious decimal sep, remove separators
+      normalized = normalized.replace(/[.,]/g, "");
+    }
+
+    const value = Number(normalized);
+    if (!Number.isFinite(value)) return null;
+
+    return { prefix, suffix, decimals, decimalSep, value };
   }
 
-  function parseOptions(el) {
-    const type = el.getAttribute("data-cc-reveal") || DEFAULTS.type;
-    const once = toBool(el.getAttribute("data-cc-once"), DEFAULTS.once);
-    const threshold = toNum(el.getAttribute("data-cc-threshold"), DEFAULTS.threshold);
-    const duration = toNum(el.getAttribute("data-cc-duration"), DEFAULTS.duration);
-    const delay = toNum(el.getAttribute("data-cc-delay"), DEFAULTS.delay);
-    const ease = el.getAttribute("data-cc-ease") || DEFAULTS.ease;
-    const distance = toNum(el.getAttribute("data-cc-distance"), DEFAULTS.distance);
-    const debug = toBool(el.getAttribute("data-cc-debug"), DEFAULTS.debug);
+  function formatNumber(value, decimals, decimalSep) {
+    // fixed decimals
+    let s = value.toFixed(decimals);
 
-    return { type, once, threshold, duration, delay, ease, distance, debug };
+    // add thousands separators + decimal separator style to match original
+    // We'll format using en-US commas for thousands then swap if needed.
+    const parts = s.split(".");
+    let intPart = parts[0];
+    const decPart = parts[1] || "";
+
+    // thousands with comma
+    intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+    if (decimals === 0) return intPart;
+
+    if (decimalSep === ",") {
+      // swap thousands commas -> dots, decimal dot -> comma
+      intPart = intPart.replace(/,/g, ".");
+      return intPart + "," + decPart;
+    }
+
+    // decimalSep '.' or unknown -> keep standard
+    return intPart + "." + decPart;
   }
 
-  function reveal(el) {
-    el.classList.add("cc-reveal--in");
-  }
+  function animateCount(el) {
+    // Only if data-from exists OR element has data-count (opt-in)
+    if (!("from" in el.dataset) && !("count" in el.dataset)) return;
 
-  function hide(el) {
-    el.classList.remove("cc-reveal--in");
-  }
+    const parts = parseNumberParts(el.textContent);
+    if (!parts) return;
 
-  function collectTargets(root = document) {
-    const v2 = Array.from(root.querySelectorAll("[data-cc-reveal]"));
-    const v1 = Array.from(root.querySelectorAll(".cc-reveal"));
-    const all = new Set([...v2, ...v1]);
-    return Array.from(all);
-  }
+    const fromRaw = el.dataset.from;
+    const from = fromRaw != null && fromRaw !== "" ? Number(fromRaw) : 0;
+    const to = parts.value;
 
-  function setupStaggers(root = document) {
-    const containers = Array.from(root.querySelectorAll("[data-cc-stagger]"));
-    for (const c of containers) {
-      const baseStagger = toNum(c.getAttribute("data-cc-stagger"), 0);
-      if (!baseStagger) continue;
+    // If reduced motion, set final immediately
+     console.log(fromRaw)
+    if (reduce) {
+       console.log(el+"is reduced")
+      el.textContent = `${parts.prefix}${formatNumber(to, parts.decimals, parts.decimalSep)}${parts.suffix}`;
+      return;
+    }
 
-      const selector = c.getAttribute("data-cc-children") || "> *";
-      let kids = [];
-      try {
-        kids = Array.from(c.querySelectorAll(selector));
-      } catch {
-        kids = Array.from(c.children);
+    const dur = Number(el.dataset.countDuration || 1200);
+    const start = performance.now();
+
+    // Guard: prevent double-running
+    if (el.dataset.countRan === "1") return;
+    el.dataset.countRan = "1";
+
+    function tick(now) {
+      const t = Math.min(1, (now - start) / dur);
+      // easeOutCubic
+      const eased = 1 - Math.pow(1 - t, 3);
+      const current = from + (to - from) * eased;
+
+      el.textContent =
+        `${parts.prefix}${formatNumber(current, parts.decimals, parts.decimalSep)}${parts.suffix}`;
+
+      if (t < 1) requestAnimationFrame(tick);
+      else {
+        // ensure exact final value
+        el.textContent =
+          `${parts.prefix}${formatNumber(to, parts.decimals, parts.decimalSep)}${parts.suffix}`;
       }
-
-      kids.forEach((child, idx) => {
-        // Only apply if child participates in reveal
-        if (!child.matches("[data-cc-reveal], .cc-reveal")) return;
-
-        const existing = child.getAttribute("data-cc-delay");
-        const base = existing ? toNum(existing, 0) : 0;
-        child.setAttribute("data-cc-delay", String(base + idx * baseStagger));
-      });
     }
+
+    requestAnimationFrame(tick);
+  }
+  // Apply per-element overrides via data-attributes (before observing)
+  els.forEach((el) => {
+    const { duration, delay, distance, ease } = el.dataset;
+
+    if (duration) el.style.setProperty("--reveal-duration", `${duration}ms`);
+    if (delay) el.style.setProperty("--reveal-delay", `${delay}ms`);
+    if (distance) el.style.setProperty("--reveal-distance", `${distance}px`);
+    if (ease) el.style.setProperty("--reveal-ease", ease);
+  });
+
+  // Fallback: reveal everything
+  if (reduce || !("IntersectionObserver" in window)) {
+    els.forEach((el) => el.classList.add("is-visible"));
+    document.documentElement.classList.add("ccreveal-ready");
+    return;
   }
 
-  function init(root = document) {
-    setupStaggers(root);
-
-    const targets = collectTargets(root);
-
-    for (const el of targets) {
-      normalizeType(el);
-
-      const opts = parseOptions(el);
-
-      // Set type explicitly to avoid “unknown defaults” issues
-      el.setAttribute("data-cc-reveal", opts.type);
-
-      // Debug outline
-      if (opts.debug) el.classList.add("cc-reveal--debug");
-
-      // Reduced motion: reveal immediately
-      if (prefersReducedMotion()) {
-        applyVars(el, { ...opts, duration: 1, delay: 0, distance: 0 });
-        reveal(el);
-        continue;
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          e.target.classList.add("is-visible");
+          io.unobserve(e.target);
+        }
       }
+    },
+    { threshold: 0.14, rootMargin: "0px 0px -10% 0px" }
+  );
 
-      applyVars(el, opts);
-    }
-
-    // Group by threshold for fewer observers (simple batching)
-    const buckets = new Map();
-    for (const el of targets) {
-      const opts = parseOptions(el);
-      const key = String(opts.threshold);
-      if (!buckets.has(key)) buckets.set(key, []);
-      buckets.get(key).push(el);
-    }
-
-    for (const [key, els] of buckets.entries()) {
-      const threshold = Number(key);
-
-      const io = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            const el = entry.target;
-            const opts = parseOptions(el);
-
-            if (entry.isIntersecting) {
-              reveal(el);
-              if (opts.once) io.unobserve(el);
-            } else {
-              if (!opts.once) hide(el);
-            }
-          }
-        },
-        { threshold, rootMargin: DEFAULTS.rootMargin }
-      );
-
-      els.forEach((el) => io.observe(el));
-    }
-  }
-
-  // Public hook
-  window.CC = window.CC || {};
-  window.CC.reveal = {
-    init
-  };
-
-  // Auto-init on DOM ready
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => init(document));
-  } else {
-    init(document);
-  }
+  els.forEach((el) => io.observe(el));
+  document.documentElement.classList.add("ccreveal-ready");
 })();

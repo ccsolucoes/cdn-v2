@@ -5,7 +5,6 @@
 (() => {
   const REDUCE = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
   if (REDUCE) return;
-
   const COLOR_PRESETS = {
     gold: "#D4AF37",
     warmgold: "#CFAF6D",
@@ -122,7 +121,7 @@
 
     makeParticle(randomY = false) {
       const size = rand(this.base.sizeMin, this.base.sizeMax);
-      const alpha = rand(this.base.alphaMin, this.base.alphaMax) * (0.55 + this.intensity * 0.65);
+      const alpha = rand(this.base.alphaMin, this.base.alphaMax) * (0.95 + this.intensity * 1.15);
 
       const vy = rand(this.base.baseFall, this.base.baseFall + this.base.fallVariance) * (0.65 + this.intensity * 0.55);
       const vx = rand(
@@ -159,7 +158,6 @@
 
       this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
 
-      // Rebuild to match size
       this.particles = [];
       const count = this.pickCount();
       for (let i = 0; i < count; i++) this.particles.push(this.makeParticle(true));
@@ -225,7 +223,6 @@
   const hosts = Array.from(document.querySelectorAll('[cc-ambient="gold-dust"]'));
   if (!hosts.length) return;
 
-  // Avoid double init if your CDN loader runs twice
   for (const host of hosts) {
     if (host.__ccGoldDust) continue;
     host.__ccGoldDust = new GoldDust(host);

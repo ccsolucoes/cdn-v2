@@ -1,7 +1,8 @@
 (function () {
-
+  console.log("entrou na func")
   const cfg = window.CCAnims || {};
   const thisSrc = document.currentScript.src;
+  const internal = true
   const root = thisSrc.split("/cc-anims/")[0];
 
   const loaded = {};
@@ -32,14 +33,16 @@
 
     if(!enabled) return;
     if(module === "cdnRoot") return;
-
     const version =
       typeof enabled === "object" && enabled.version
         ? enabled.version
         : "stable";
-
-    const base = `${root}/cc-${module}/${version}/`;
-
+        
+    let base = `${root}/cc-${module}/${version}/`
+    if (internal){
+      base = `cc-${module}/`;
+    } 
+    console.log(base)
     loadCSS(base + `cc-${module}.css`);
     loadJS(base + `cc-${module}.js`);
 
