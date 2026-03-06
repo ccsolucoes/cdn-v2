@@ -1,5 +1,4 @@
 (function () {
-  console.log("entrou na func")
   const cfg = window.CCAnims || {};
   const thisSrc = document.currentScript.src;
   const internal = false
@@ -40,7 +39,6 @@
         
     let base = `${root}/cc-${module}/${version}/`
     if (internal){
-      console.log("entrou interno")
       base = `cc-${module}/`;
     } 
     console.log(base)

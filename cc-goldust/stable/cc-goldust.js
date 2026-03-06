@@ -14,9 +14,9 @@
   };
 
   const INTENSITY_PRESETS = {
-    low: 0.30,
-    medium: 0.55,
-    high: 0.85,
+    low: 1.30,
+    medium: 3.55,
+    high: 12.85,
   };
 
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
