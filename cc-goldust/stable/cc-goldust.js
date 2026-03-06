@@ -18,10 +18,29 @@
     medium: 0.55,
     high: 0.85,
   };
+  const GLOBAL_CFG =
+    window.CCAnims &&
+    typeof window.CCAnims.goldust === "object"
+      ? window.CCAnims.goldust
+      : {};
 
+  const GLOBAL_DEFAULTS =
+    GLOBAL_CFG && typeof GLOBAL_CFG.defaults === "object"
+      ? GLOBAL_CFG.defaults
+      : {};
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
   const rand = (min, max) => min + Math.random() * (max - min);
+  function numAttr(el, name, fallback) {
+    const raw = el.getAttribute(name);
+    if (raw == null || raw === "") return fallback;
+    const num = Number(raw);
+    return Number.isFinite(num) ? num : fallback;
+  }
 
+  function strAttr(el, name, fallback) {
+    const raw = el.getAttribute(name);
+    return raw == null || raw === "" ? fallback : raw;
+  }
   function parseColor(el) {
     const raw = (el.getAttribute("data-color") || "").trim().toLowerCase();
     if (!raw) return hexToRgb(COLOR_PRESETS.warmgold);
@@ -30,11 +49,18 @@
   }
 
   function parseIntensity(el) {
-    const raw = (el.getAttribute("data-intensity") || "").trim().toLowerCase();
-    if (!raw) return INTENSITY_PRESETS.medium;
+    const fallbackRaw =
+      GLOBAL_DEFAULTS.intensity != null
+        ? String(GLOBAL_DEFAULTS.intensity)
+        : "medium";
+
+    const raw = (el.getAttribute("data-intensity") || fallbackRaw).trim().toLowerCase();
+
     if (INTENSITY_PRESETS[raw] != null) return INTENSITY_PRESETS[raw];
+
     const num = Number(raw);
     if (Number.isFinite(num)) return clamp(num, 0, 1);
+
     return INTENSITY_PRESETS.medium;
   }
 
@@ -61,8 +87,8 @@
       this.color = parseColor(host);
       this.intensity = parseIntensity(host);
 
-      this.base = {
-        densityPer100k: 18,      // particles per 100k px² at intensity=1
+      const BASE_DEFAULTS = {
+        densityPer100k: 18,
         minCount: 14,
         maxCount: 110,
 
@@ -80,6 +106,30 @@
 
         mobileMaxCount: 55,
         mobileDPRCap: 1.5,
+      };
+
+      this.base = {
+        ...BASE_DEFAULTS,
+        ...GLOBAL_DEFAULTS,
+
+        densityPer100k: numAttr(host, "data-density", GLOBAL_DEFAULTS.densityPer100k ?? BASE_DEFAULTS.densityPer100k),
+        minCount: numAttr(host, "data-min-count", GLOBAL_DEFAULTS.minCount ?? BASE_DEFAULTS.minCount),
+        maxCount: numAttr(host, "data-max-count", GLOBAL_DEFAULTS.maxCount ?? BASE_DEFAULTS.maxCount),
+
+        baseFall: numAttr(host, "data-base-fall", GLOBAL_DEFAULTS.baseFall ?? BASE_DEFAULTS.baseFall),
+        fallVariance: numAttr(host, "data-fall-variance", GLOBAL_DEFAULTS.fallVariance ?? BASE_DEFAULTS.fallVariance),
+        drift: numAttr(host, "data-drift", GLOBAL_DEFAULTS.drift ?? BASE_DEFAULTS.drift),
+        driftVariance: numAttr(host, "data-drift-variance", GLOBAL_DEFAULTS.driftVariance ?? BASE_DEFAULTS.driftVariance),
+
+        sizeMin: numAttr(host, "data-size-min", GLOBAL_DEFAULTS.sizeMin ?? BASE_DEFAULTS.sizeMin),
+        sizeMax: numAttr(host, "data-size-max", GLOBAL_DEFAULTS.sizeMax ?? BASE_DEFAULTS.sizeMax),
+        blurMax: numAttr(host, "data-blur-max", GLOBAL_DEFAULTS.blurMax ?? BASE_DEFAULTS.blurMax),
+
+        alphaMin: numAttr(host, "data-alpha-min", GLOBAL_DEFAULTS.alphaMin ?? BASE_DEFAULTS.alphaMin),
+        alphaMax: numAttr(host, "data-alpha-max", GLOBAL_DEFAULTS.alphaMax ?? BASE_DEFAULTS.alphaMax),
+
+        mobileMaxCount: numAttr(host, "data-mobile-max-count", GLOBAL_DEFAULTS.mobileMaxCount ?? BASE_DEFAULTS.mobileMaxCount),
+        mobileDPRCap: numAttr(host, "data-mobile-dpr-cap", GLOBAL_DEFAULTS.mobileDPRCap ?? BASE_DEFAULTS.mobileDPRCap),
       };
 
       this.W = 0;
