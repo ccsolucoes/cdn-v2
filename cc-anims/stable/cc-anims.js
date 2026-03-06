@@ -2,7 +2,7 @@
   console.log("entrou na func")
   const cfg = window.CCAnims || {};
   const thisSrc = document.currentScript.src;
-  const internal = true
+  const internal = false
   const root = thisSrc.split("/cc-anims/")[0];
 
   const loaded = {};
