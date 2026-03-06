@@ -14,9 +14,9 @@
   };
 
   const INTENSITY_PRESETS = {
-    low: 1.30,
-    medium: 123.55,
-    high: 12.85,
+    low: 0.30,
+    medium: 0.55,
+    high: 0.85,
   };
 
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -62,21 +62,21 @@
       this.intensity = parseIntensity(host);
 
       this.base = {
-        densityPer100k: 128,      // particles per 100k px² at intensity=1
-        minCount: 114,
-        maxCount: 210,
+        densityPer100k: 18,      // particles per 100k px² at intensity=1
+        minCount: 14,
+        maxCount: 110,
 
-        baseFall: 30,
-        fallVariance: 48,
-        drift: 50,
-        driftVariance: 64,
+        baseFall: 10,
+        fallVariance: 18,
+        drift: 10,
+        driftVariance: 14,
 
-        sizeMin: 1.8,
-        sizeMax: 4.2,
-        blurMax: 8.6,
+        sizeMin: 0.8,
+        sizeMax: 2.2,
+        blurMax: 2.6,
 
-        alphaMin: 1.05,
-        alphaMax: 2.18,
+        alphaMin: 0.05,
+        alphaMax: 0.18,
 
         mobileMaxCount: 55,
         mobileDPRCap: 1.5,
