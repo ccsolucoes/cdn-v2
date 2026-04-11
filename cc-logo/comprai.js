@@ -92,7 +92,7 @@ class CompraiBrand extends HTMLElement {
           top: 0;
           font-family: 'Montserrat', sans-serif;
           font-weight: 800;
-          color: ${this._gold};
+          color: ${this._color};
           opacity: 0.2;
           pointer-events: none;
           z-index: 0;
@@ -105,7 +105,7 @@ class CompraiBrand extends HTMLElement {
           z-index: 1;
           font-family: 'Montserrat', sans-serif;
           font-weight: 800;
-          color: ${this._gold};
+          color: ${this._color};
         }
 
         /* OMPR — cor principal */
