@@ -43,7 +43,7 @@ class CompraiBrand extends HTMLElement {
   }
   get _color() {
     if (this.hasAttribute('color')) return this.getAttribute('color');
-    return this.getAttribute('theme') === 'light' ? '#111312' : '#f5f5f0';
+    return this.getAttribute('theme') === 'light' ? '#111312' : '#d8b856';
   }
   get _sans()   { return this.getAttribute('sans')   || 'Archivo'; }
   get _weight() { return this.getAttribute('weight') || '900'; }
