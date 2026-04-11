@@ -85,15 +85,15 @@ class CompraiBrand extends HTMLElement {
           align-items: baseline;
         }
 
-        /* Ghost C — teal, atrás e deslocado levemente à esquerda */
+        /* Ghost C — gold, baixa opacidade, deslocado à esquerda */
         .c-ghost {
           position: absolute;
-          left: -0.2em;
+          left: -0.18em;
           top: 0;
           font-family: 'Montserrat', sans-serif;
           font-weight: 800;
-          color: ${this._teal};
-          opacity: 0.55;
+          color: ${this._gold};
+          opacity: 0.2;
           pointer-events: none;
           z-index: 0;
           line-height: 1;
@@ -108,18 +108,25 @@ class CompraiBrand extends HTMLElement {
           color: ${this._gold};
         }
 
-        /* OMPR + A — cor principal */
+        /* OMPR — cor principal */
         .base {
           font-family: 'Montserrat', sans-serif;
           font-weight: 800;
           color: ${this._color};
         }
 
-        /* Í — teal */
+        /* AÍ + CC — teal */
         .teal {
           font-family: 'Montserrat', sans-serif;
           font-weight: 800;
           color: ${this._teal};
+        }
+
+        /* ponto — gold */
+        .dot {
+          font-family: 'Montserrat', sans-serif;
+          font-weight: 800;
+          color: ${this._gold};
         }
       </style>
 
@@ -128,8 +135,9 @@ class CompraiBrand extends HTMLElement {
         <span class="c-main">C</span>
       </span>
       <span class="base">OMPR</span>
-      <span class="base">A</span>
-      <span class="teal">Í</span>
+      <span class="teal">AÍ</span>
+      <span class="dot">.</span>
+      <span class="teal">CC</span>
     `;
   }
 }
