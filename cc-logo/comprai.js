@@ -1,35 +1,34 @@
 /**
- * <comprai-brand> — Web Component de marca Compraí.CC
+ * <comprai-brand> — Web Component de marca Compraí
  *
- * Tipografia:
- *   [compr]  — fonte secundária (sans), cor principal
- *   (aí)     — Montserrat ExtraBold, cor accent
- *   [.]      — fonte secundária, cor principal
- *   (CC)     — Montserrat ExtraBold, cor accent
+ * Tipografia (baseada no mockup):
+ *   Ghost C  — teal, Montserrat 800, deslocado à esquerda atrás do C principal
+ *   (C)      — gold, Montserrat 800
+ *   [OMPR]   — cor principal (branco), Montserrat 800
+ *   [A]      — cor principal (branco), Montserrat 800
+ *   (Í)      — teal, Montserrat 800
  *
  * USO:
  *   <script src="https://cdn.developedby.cc/comprai-brand/comprai-brand.js"></script>
  *   <comprai-brand></comprai-brand>
  *
  * ATRIBUTOS:
- *   size        — "xs" | "sm" | "md" | "lg" | "xl" | "hero"  (default: "md")
- *   accent      — cor hex do accent               (default: #2ec4b0)
- *   color       — cor hex do texto principal      (default: #f5f5f0)
- *   sans        — família da parte secundária     (default: "Archivo")
- *   weight      — peso da parte secundária        (default: 900)
- *   theme       — "dark" | "light"                (default: "dark")
+ *   size    — "xs" | "sm" | "md" | "lg" | "xl" | "hero"  (default: "md")
+ *   teal    — cor hex do teal  (default: #2ec4b0)
+ *   gold    — cor hex do gold  (default: #d8b856)
+ *   color   — cor hex do texto principal  (default: #f5f5f0)
+ *   theme   — "dark" | "light"  (default: "dark")
  *
  * EXEMPLOS:
  *   <comprai-brand></comprai-brand>
  *   <comprai-brand size="hero"></comprai-brand>
- *   <comprai-brand size="sm" accent="#d8b856"></comprai-brand>
- *   <comprai-brand theme="light" sans="DM Sans"></comprai-brand>
- *   <comprai-brand color="#ffffff" accent="#2ec4b0" size="lg"></comprai-brand>
+ *   <comprai-brand size="sm" theme="light"></comprai-brand>
+ *   <comprai-brand teal="#2ec4b0" gold="#d8b856" size="lg"></comprai-brand>
  */
 
 class CompraiBrand extends HTMLElement {
   static get observedAttributes() {
-    return ['size', 'accent', 'color', 'sans', 'weight', 'theme'];
+    return ['size', 'teal', 'gold', 'color', 'theme'];
   }
 
   constructor() {
@@ -37,20 +36,22 @@ class CompraiBrand extends HTMLElement {
     this.attachShadow({ mode: 'open' });
   }
 
-  get _accent() {
-    if (this.hasAttribute('accent')) return this.getAttribute('accent');
+  get _teal() {
+    if (this.hasAttribute('teal')) return this.getAttribute('teal');
     return this.getAttribute('theme') === 'light' ? '#0f6e56' : '#2ec4b0';
+  }
+  get _gold() {
+    if (this.hasAttribute('gold')) return this.getAttribute('gold');
+    return this.getAttribute('theme') === 'light' ? '#8a6e1f' : '#d8b856';
   }
   get _color() {
     if (this.hasAttribute('color')) return this.getAttribute('color');
     return this.getAttribute('theme') === 'light' ? '#111312' : '#f5f5f0';
   }
-  get _sans()   { return this.getAttribute('sans')   || 'Archivo'; }
-  get _weight() { return this.getAttribute('weight') || '900'; }
-  get _size()   { return this.getAttribute('size')   || 'md'; }
+  get _size() { return this.getAttribute('size') || 'md'; }
 
-  connectedCallback()              { this._render(); }
-  attributeChangedCallback()       { this._render(); }
+  connectedCallback()        { this._render(); }
+  attributeChangedCallback() { this._render(); }
 
   _render() {
     const sizes = {
@@ -63,42 +64,72 @@ class CompraiBrand extends HTMLElement {
     };
     const fs = sizes[this._size] || sizes.md;
 
-    // Letter-spacing apertado só no hero e xl
-    const ls = ['hero', 'xl'].includes(this._size) ? '-0.05em' : '-0.03em';
-
-    // Encode a fonte pra URL do Google Fonts
-    const gfSans   = encodeURIComponent(this._sans).replace(/%20/g, '+');
-    const gfWeight = this._weight;
-
     this.shadowRoot.innerHTML = `
       <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=${gfSans}:wght@${gfWeight}&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap');
 
         :host {
           display: inline-flex;
           align-items: baseline;
           font-size: ${fs};
           line-height: 1;
-          letter-spacing: ${ls};
-          font-weight: ${this._weight};
+          letter-spacing: -0.04em;
           user-select: none;
           cursor: default;
         }
 
+        /* Wrapper do C — contém o ghost e o C real empilhados */
+        .c-wrap {
+          position: relative;
+          display: inline-flex;
+          align-items: baseline;
+        }
+
+        /* Ghost C — teal, atrás e deslocado levemente à esquerda */
+        .c-ghost {
+          position: absolute;
+          left: -0.2em;
+          top: 0;
+          font-family: 'Montserrat', sans-serif;
+          font-weight: 800;
+          color: ${this._teal};
+          opacity: 0.55;
+          pointer-events: none;
+          z-index: 0;
+          line-height: 1;
+        }
+
+        /* C principal — gold, na frente */
+        .c-main {
+          position: relative;
+          z-index: 1;
+          font-family: 'Montserrat', sans-serif;
+          font-weight: 800;
+          color: ${this._gold};
+        }
+
+        /* OMPR + A — cor principal */
         .base {
-          font-family: '${this._sans}', sans-serif;
-          font-weight: ${this._weight};
+          font-family: 'Montserrat', sans-serif;
+          font-weight: 800;
           color: ${this._color};
         }
 
-        .accent {
+        /* Í — teal */
+        .teal {
           font-family: 'Montserrat', sans-serif;
           font-weight: 800;
-          color: ${this._accent};
+          color: ${this._teal};
         }
       </style>
 
-      <span class="base">compr</span><span class="accent">aí</span><span class="base">.</span><span class="accent">CC</span>
+      <span class="c-wrap">
+        <span class="c-ghost" aria-hidden="true">C</span>
+        <span class="c-main">C</span>
+      </span>
+      <span class="base">OMPR</span>
+      <span class="base">A</span>
+      <span class="teal">Í</span>
     `;
   }
 }
